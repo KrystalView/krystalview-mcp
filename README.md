@@ -2,7 +2,41 @@
 
 Give your AI agents direct access to website analytics. Query visitor sessions, investigate UX friction, analyze conversion funnels, review campaigns and errors, and get anomaly alerts — all from Claude, Cursor, or any MCP-compatible client.
 
-## Quick Start
+## Connection Options
+
+### Hosted Remote MCP
+
+Use this when your client supports remote MCP servers or connector-style OAuth.
+No local package install is required.
+
+| Field | Value |
+|-------|-------|
+| Endpoint | `https://krystalview.com/mcp` |
+| Transport | `streamable-http` |
+| Authentication | OAuth authorization code + PKCE |
+| OAuth metadata | `https://krystalview.com/.well-known/oauth-authorization-server` |
+| Protected resource metadata | `https://krystalview.com/.well-known/oauth-protected-resource` |
+
+During OAuth, KrystalView asks the signed-in user to choose the site the MCP
+client can read. The issued token is read-only and scoped to that site.
+
+For clients that support custom headers instead of OAuth, the hosted endpoint
+also accepts a KrystalView read API key as either:
+
+```http
+Authorization: Bearer kv_live_...
+```
+
+or:
+
+```http
+X-API-Key: kv_live_...
+```
+
+### Local stdio MCP Package
+
+Use this when your MCP client runs local stdio servers, such as Claude Desktop,
+Claude Code, Cursor, or similar developer tools.
 
 ### Install
 
@@ -100,10 +134,11 @@ API keys have configurable rate limits (default: 60 requests per minute). Rate l
 ## Security
 
 - API keys are scoped to a single site — agents can only access data for the site the key was created for
+- OAuth tokens issued by the hosted MCP endpoint are read-only and scoped to the selected site
 - Tools are read-only
 - All requests use HTTPS
 - Keys can be rotated or revoked in the KrystalView console
-- No data is stored by the MCP server — it proxies directly to the KrystalView API
+- The local stdio package stores no data — it proxies directly to the KrystalView API
 
 <!-- mcp-name: io.github.KrystalView/krystalview -->
 
