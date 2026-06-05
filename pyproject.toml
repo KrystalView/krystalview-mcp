@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "krystalview-mcp"
-version = "0.1.4"
-description = "KrystalView MCP Server — AI agent access to website analytics, session replay, friction scoring, and anomaly detection."
+version = "0.1.5"
+description = "KrystalView MCP Server — AI agent access to website analytics, session replay, funnels, campaigns, errors, and anomaly detection."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
@@ -28,5 +28,5 @@ krystalview-mcp = "krystalview_mcp.server:main"
 
 [project.urls]
 Homepage = "https://krystalview.com"
-Documentation = "https://docs.krystalview.com/integrations/mcp"
+Documentation = "https://krystalview.com/docs/mcp"
 Repository = "https://github.com/KrystalView/krystalview-mcp"

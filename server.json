@@ -2,17 +2,17 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.KrystalView/krystalview",
   "title": "KrystalView Analytics",
-  "description": "AI agent access to website analytics, session replay, and anomaly detection.",
+  "description": "Read-only MCP access to sessions, funnels, campaigns, errors, live visitors, and anomalies.",
   "repository": {
     "url": "https://github.com/KrystalView/krystalview-mcp",
     "source": "github"
   },
-  "version": "0.1.4",
+  "version": "0.1.5",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "krystalview-mcp",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "transport": {
         "type": "stdio"
       },
@@ -26,7 +26,7 @@
         },
         {
           "name": "KRYSTALVIEW_BASE_URL",
-          "description": "API base URL (default: https://app.krystalview.com/api)",
+          "description": "API base URL (default: https://krystalview.com/api)",
           "isRequired": false,
           "format": "string",
           "isSecret": false
