@@ -19,6 +19,8 @@ No local package install is required.
 
 During OAuth, KrystalView asks the signed-in user to choose the site the MCP
 client can read. The issued token is read-only and scoped to that site.
+The hosted OAuth server supports dynamic client registration, authorization
+code + PKCE, resource indicators, refresh-token rotation, and token revocation.
 
 For clients that support custom headers instead of OAuth, the hosted endpoint
 also accepts a KrystalView read API key as either:
@@ -135,6 +137,8 @@ API keys have configurable rate limits (default: 60 requests per minute). Rate l
 
 - API keys are scoped to a single site — agents can only access data for the site the key was created for
 - OAuth tokens issued by the hosted MCP endpoint are read-only and scoped to the selected site
+- Hosted OAuth supports refresh-token rotation and token revocation
+- Browser-originating MCP/OAuth requests are checked against explicit trusted origins
 - Tools are read-only
 - All requests use HTTPS
 - Keys can be rotated or revoked in the KrystalView console
