@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "krystalview-mcp"
-version = "0.1.5"
+version = "0.1.6"
 description = "KrystalView MCP Server — AI agent access to website analytics, session replay, funnels, campaigns, errors, and anomaly detection."
 readme = "README.md"
 license = "MIT"
