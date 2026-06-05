@@ -1,6 +1,6 @@
 # KrystalView MCP Server
 
-Give your AI agents direct access to website analytics. Query visitor sessions, investigate UX friction, analyze conversion funnels, and get anomaly alerts — all from Claude, Cursor, or any MCP-compatible client.
+Give your AI agents direct access to website analytics. Query visitor sessions, investigate UX friction, analyze conversion funnels, review campaigns and errors, and get anomaly alerts — all from Claude, Cursor, or any MCP-compatible client.
 
 ## Quick Start
 
@@ -12,7 +12,7 @@ pip install krystalview-mcp
 
 ### Configure
 
-Generate an API key in your [KrystalView console](https://app.krystalview.com) under **Settings > API Keys**.
+Generate an API key in your [KrystalView console](https://krystalview.com) under **Settings > API Keys**.
 
 #### Claude Desktop
 
@@ -61,9 +61,16 @@ Add to your MCP settings:
 | `get_sessions` | List/search visitor sessions with filters (device, location, friction, rage clicks) |
 | `get_session_detail` | Deep dive into a specific session — full timeline, events, navigation path |
 | `get_site_stats` | Aggregate performance metrics — sessions, friction, devices, top pages |
+| `get_scroll_depth` | Scroll-depth buckets for a specific page path |
+| `get_live_visitors` | Currently active visitor count and recent live sessions |
 | `get_anomalies` | AI-detected anomalies with explanations (traffic spikes/drops, friction surges) |
 | `get_funnels` | List defined conversion funnels |
 | `get_funnel_analysis` | Step-by-step funnel conversion rates and drop-off analysis |
+| `get_campaign_summary` | UTM campaign attribution summary |
+| `get_campaign_sessions` | Visitor sessions from a specific campaign |
+| `get_campaign_roas` | Paid campaign spend, conversions, and ROAS where connected |
+| `get_errors` | Aggregated client-side browser errors |
+| `get_notifications` | Recent KrystalView notifications and insights |
 
 ## Example Prompts
 
@@ -74,6 +81,8 @@ Once connected, try asking your AI assistant:
 - *"Why did our traffic drop yesterday?"*
 - *"Where are users dropping off in the checkout funnel?"*
 - *"Find sessions with rage clicks on the pricing page"*
+- *"Which campaigns are driving the most high-friction sessions?"*
+- *"Show me unresolved browser errors with sample session IDs"*
 - *"Are there any anomalies I should know about?"*
 
 ## Environment Variables
@@ -91,6 +100,7 @@ API keys have configurable rate limits (default: 60 requests per minute). Rate l
 ## Security
 
 - API keys are scoped to a single site — agents can only access data for the site the key was created for
+- Tools are read-only
 - All requests use HTTPS
 - Keys can be rotated or revoked in the KrystalView console
 - No data is stored by the MCP server — it proxies directly to the KrystalView API

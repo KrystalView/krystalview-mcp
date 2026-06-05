@@ -28,7 +28,8 @@ mcp = FastMCP(
     "KrystalView",
     instructions=(
         "KrystalView provides real-time website analytics with session replay, "
-        "friction scoring, anomaly detection, and funnel analysis. "
+        "friction scoring, anomaly detection, campaign attribution, error "
+        "monitoring, live visitors, scroll depth, and funnel analysis. "
         "Use these tools to investigate visitor behavior, diagnose UX issues, "
         "and answer questions about site performance."
     ),
@@ -168,6 +169,46 @@ async def get_site_stats(days: int = 7) -> str:
 
 
 @mcp.tool()
+async def get_scroll_depth(path: str, days: int = 30) -> str:
+    """Get cumulative scroll-depth reach for a specific page path.
+
+    Returns the number of analyzed sessions plus 10% depth buckets showing
+    how many visitors reached each scroll threshold.
+
+    Use this to understand how far down a page visitors typically get before
+    dropping off.
+
+    Args:
+        path: Page path to analyse (for example "/pricing")
+        days: Lookback period in days (1-90, default 30)
+    """
+    try:
+        data = await _get("/v1/api/scroll-depth", {
+            "path": path,
+            "days": min(max(days, 1), 90),
+        })
+        return json.dumps(data["data"], indent=2, default=str)
+    except Exception as exc:
+        return _format_error(exc)
+
+
+@mcp.tool()
+async def get_live_visitors() -> str:
+    """Get currently active visitors on the site in real-time.
+
+    Returns the current live visitor count plus sessions active in the last
+    30 seconds. Each session includes entry/exit URL context, country, device,
+    and how long ago the session started.
+    """
+    try:
+        data = await _get("/v1/api/sessions/live")
+        payload = data.get("data") or data
+        return json.dumps(payload, indent=2, default=str)
+    except Exception as exc:
+        return _format_error(exc)
+
+
+@mcp.tool()
 async def get_anomalies(
     limit: int = 20,
     unacknowledged_only: bool = False,
@@ -231,6 +272,134 @@ async def get_funnel_analysis(funnel_id: int, days: int = 30) -> str:
             "days": min(max(days, 7), 90),
         })
         return json.dumps(data["data"], indent=2, default=str)
+    except Exception as exc:
+        return _format_error(exc)
+
+
+@mcp.tool()
+async def get_campaign_summary(days: int = 30) -> str:
+    """Get campaign attribution breakdown showing sessions per campaign.
+
+    Returns each campaign with: name, source, medium, session count,
+    average duration, and bounce rate. Use this to identify which
+    marketing campaigns drive traffic and conversions.
+
+    Args:
+        days: Lookback period in days (7-90, default 30)
+    """
+    try:
+        data = await _get("/v1/api/campaigns", {"days": min(max(days, 7), 90)})
+        payload = data.get("data") or data
+        campaigns = payload.get("campaigns", payload) if isinstance(payload, dict) else payload
+        return json.dumps(campaigns, indent=2, default=str)
+    except Exception as exc:
+        return _format_error(exc)
+
+
+@mcp.tool()
+async def get_campaign_sessions(
+    campaign: str,
+    limit: int = 20,
+    offset: int = 0,
+) -> str:
+    """List sessions from a specific marketing campaign.
+
+    Use this after get_campaign_summary to drill into sessions from
+    an underperforming campaign and understand visitor behavior.
+
+    Args:
+        campaign: Campaign name (utm_campaign value)
+        limit: Max results (1-100, default 20)
+        offset: Pagination offset
+    """
+    try:
+        data = await _get(f"/v1/api/campaigns/{campaign}/sessions", {
+            "limit": min(limit, 100),
+            "offset": max(offset, 0),
+        })
+        payload = data.get("data") or data
+        return json.dumps(payload, indent=2, default=str)
+    except Exception as exc:
+        return _format_error(exc)
+
+
+@mcp.tool()
+async def get_campaign_roas(days: int = 30) -> str:
+    """Get paid campaign ROAS using Google Ads spend joined to tracked conversions.
+
+    Returns each paid campaign with: spend, impressions, clicks, attributed
+    sessions, attributed goal conversions, and ROAS. Use this when you need to
+    understand whether a campaign is buying profitable traffic rather than just
+    traffic volume.
+
+    Args:
+        days: Lookback period in days (1-90, default 30)
+    """
+    try:
+        data = await _get("/v1/api/campaigns/roas", {"days": min(max(days, 1), 90)})
+        payload = data.get("data") or data
+        campaigns = payload.get("campaigns", payload) if isinstance(payload, dict) else payload
+        return json.dumps(campaigns, indent=2, default=str)
+    except Exception as exc:
+        return _format_error(exc)
+
+
+@mcp.tool()
+async def get_errors(
+    limit: int = 20,
+    error_type: Optional[str] = None,
+    unresolved_only: bool = True,
+) -> str:
+    """Get aggregated browser errors detected on the site.
+
+    Errors are grouped by type and message. Each entry shows: error type,
+    message, affected paths, occurrence count, session count, and sample
+    session IDs for replay investigation.
+
+    Use this to find client-side issues affecting visitors: broken images,
+    JavaScript errors, failed resources.
+
+    Args:
+        limit: Max results (1-200, default 20)
+        error_type: Filter by type: "js_error", "unhandled_rejection", "resource_error"
+        unresolved_only: Only show unresolved errors (default true)
+    """
+    try:
+        params = {
+            "limit": min(limit, 200),
+            "error_type": error_type,
+            "show_resolved": not unresolved_only,
+        }
+        data = await _get("/v1/api/errors", params)
+        payload = data.get("data") or data
+        errors = payload.get("errors", payload) if isinstance(payload, dict) else payload
+        return json.dumps(errors, indent=2, default=str)
+    except Exception as exc:
+        return _format_error(exc)
+
+
+@mcp.tool()
+async def get_notifications(
+    unread_only: bool = False,
+    limit: int = 10,
+) -> str:
+    """Get recent notifications for this site.
+
+    Notifications include: design suggestions ready, error spikes,
+    campaign anomalies, weekly insights, and session limit warnings.
+
+    Args:
+        unread_only: Only show unread notifications
+        limit: Max results (1-50, default 10)
+    """
+    try:
+        data = await _get("/v1/api/notifications", {
+            "limit": min(limit, 50),
+            "unread_only": unread_only,
+        })
+        payload = data.get("data") or data
+        notifications = payload.get("notifications", payload) if isinstance(payload, dict) else payload
+        return json.dumps(notifications, indent=2, default=str)
     except Exception as exc:
         return _format_error(exc)
 
